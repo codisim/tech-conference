@@ -9,7 +9,7 @@ import * as bcrypt from 'bcrypt';
 export class UsersService {
     constructor(
         private prisma: PrismaService,
-        private readonly SOLT_ROUNDS: number = 10
+        // private readonly SOLT_ROUNDS: number = 10
     ) { }
 
     async getProfile(userId: string): Promise<UserResponseDto> {
@@ -119,7 +119,7 @@ export class UsersService {
         if (isSamed)
             throw new NotFoundException('New password cannot be the same as current password');
 
-        const hashedPassword = await bcrypt.hash(changePasswordDto.newPassword, this.SOLT_ROUNDS);
+        const hashedPassword = await bcrypt.hash(changePasswordDto.newPassword, 10);
 
         await this.prisma.user.update({
             where: { id: userId },

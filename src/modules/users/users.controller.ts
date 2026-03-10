@@ -6,7 +6,7 @@ import { UsersService } from './users.service';
 import { UserResponseDto } from './dto/user-response.dto';
 import type { RequestWithUser } from 'src/common/interfaces/request-with-user.interface';
 import { Roles } from 'src/common/decorators/role.decorators';
-import { Role } from '@prisma/client';
+import { UserRole } from '@prisma/client';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 
@@ -40,7 +40,7 @@ export class UsersController {
 
     // get all users (admin only)
     @Get()
-    @Roles(Role.ADMIN)
+    @Roles(UserRole.ADMIN)
     @ApiOperation({ summary: 'Get all users (admin only)' })
     @ApiResponse({
         status: 200,
@@ -64,7 +64,7 @@ export class UsersController {
 
     // get user by id (admin only)
     @Get(':id')
-    @Roles(Role.ADMIN)
+    @Roles(UserRole.ADMIN)
     @ApiOperation({ summary: 'Get user by id (admin only)' })
     @ApiResponse({
         status: 200,
@@ -176,7 +176,7 @@ export class UsersController {
 
     // delete user by id (admin only)
     @Delete(':id')
-    @Roles(Role.ADMIN)
+    @Roles(UserRole.ADMIN)
     @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: 'Delete user by id (admin only)' })
     @ApiResponse({

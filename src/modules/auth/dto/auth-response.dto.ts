@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Role } from "@prisma/client";
+import { UserRole } from "@prisma/client";
 
 
 export class AuthResponseDto {
@@ -31,6 +31,6 @@ export class AuthResponseDto {
         email: string;
         firstName: string | null;
         lastName: string | null;
-        role: Role
+        role: UserRole
     }
 }
