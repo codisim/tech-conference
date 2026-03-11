@@ -3,7 +3,7 @@ import { ApiProperty } from "@nestjs/swagger";
 export class EventResponseDto {
 
   @ApiProperty({
-    description: 'Unique identifier of the event',
+    description: 'Event ID',
     example: '7d9f1f5c-2d11-4e5e-9c90-1e5a1b23c7aa'
   })
   id: string;
@@ -61,28 +61,34 @@ export class EventResponseDto {
     description: 'Organizer information',
     example: {
       id: 'c3cbb9c1-19e5-4b78-9e7c-9c7c1a45b1d0',
-      firstName: 'John',
-      lastName: 'Doe',
-      email: 'john@example.com'
+      name: 'Tech Events Organizer',
+      companyName: 'Tech Events Ltd',
+      contactInfo: 'contact@techevents.com',
+      verified: true
     }
   })
   organizer: {
     id: string;
-    firstName: string | null;
-    lastName: string | null;
-    email: string;
+    name: string;
+    companyName: string;
+    contactInfo: string;
+    verified: boolean;
   };
 
   @ApiProperty({
     description: 'Venue information',
+    required: false,
     example: {
       id: 'b2e1d0e4-42c2-41e7-a1c2-5b2d8e0f1d1a',
-      name: 'Dhaka Convention Center'
-    },
-    required: false
+      name: 'Dhaka Convention Center',
+      address: 'Dhaka, Bangladesh',
+      mapLink: 'https://maps.google.com/example'
+    }
   })
   venue?: {
     id: string;
     name: string;
+    address: string;
+    mapLink?: string | null;
   } | null;
 }
