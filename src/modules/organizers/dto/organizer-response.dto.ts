@@ -1,6 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-
-
+import { OrganizerStatus } from "@prisma/client";
 
 export class OrganizerResponseDto {
 
@@ -29,10 +28,11 @@ export class OrganizerResponseDto {
   contactInfo: string;
 
   @ApiProperty({
-    description: "Organizer verification status",
-    example: false
+    description: "Organizer account status",
+    enum: OrganizerStatus,
+    example: OrganizerStatus.PENDING
   })
-  verified: boolean;
+  status: OrganizerStatus;
 
   @ApiProperty({
     description: "Organizer creation time",

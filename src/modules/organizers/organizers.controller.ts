@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, Post, Request } from '@nestjs/common';
+import { Body, Controller, HttpCode, Post, Patch, Param, Request, ForbiddenException } from '@nestjs/common';
 import { OrganizersService } from './organizers.service';
 import { Roles } from 'src/common/decorators/role.decorators';
 import { UserRole } from '@prisma/client';
@@ -10,35 +10,34 @@ import { OrganizerResponseDto } from './dto/organizer-response.dto';
 export class OrganizersController {
     constructor(private readonly organizersService: OrganizersService) { }
 
-    @Post('create')
-    @Roles(UserRole.ADMIN)
+    // User requests organizer account
+    @Post('request')
     @HttpCode(201)
-    @ApiOperation({ summary: 'Create a new organizer (admin only)', description: 'Create a new organizer with name, company name, contact info and user id' })
+    @ApiOperation({ summary: 'Request organizer account (user)', description: 'Any user can request to become an organizer; status defaults to PENDING' })
     @ApiResponse({
         status: 201,
-        description: 'Organizer created successfully',
+        description: 'Organizer request submitted',
         type: OrganizerResponseDto
     })
 
-    @ApiResponse({
-        status: 400,
-        description: 'Bad request',
-    })
-
-    @ApiResponse({
-        status: 401,
-        description: 'Unauthorized',
-    })
-
-    @ApiResponse({
-        status: 500,
-        description: 'Internal server error',
-    })
-
-    async createOrganizer(@Body() createOrganizerDto: CreateOrganizerDto, @Request() req: { user: { id: string } }): Promise<OrganizerResponseDto> {
-        
+    async requestOrganizer(
+        @Body() createOrganizerDto: CreateOrganizerDto,
+        @Request() req
+    ): Promise<OrganizerResponseDto> {
         const userId = req.user.id;
-        
-        return this.organizersService.createOrganizer(createOrganizerDto, userId);
+        return this.organizersService.requestOrganizer(createOrganizerDto, userId);
+    }
+
+
+    // Admin approves/rejects organizer
+    @Patch('status/:id')
+    @Roles(UserRole.ADMIN)
+    @ApiOperation({ summary: 'Update organizer status (admin)', description: 'Admin can approve or reject a pending organizer' })
+    @ApiResponse({ status: 200, description: 'Organizer status updated', type: OrganizerResponseDto })
+    async updateOrganizerStatus(
+        @Param('id') organizerId: string,
+        @Body('status') status: 'PENDING' | 'APPROVED' | 'REJECTED'
+    ): Promise<OrganizerResponseDto> {
+        return this.organizersService.updateOrganizerStatus(organizerId, status);
     }
 }

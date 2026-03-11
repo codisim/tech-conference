@@ -7,7 +7,7 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(ulid())
+  id        String   @id @default(uuid())
   email     String   @unique
   password  String
   firstName String
@@ -39,6 +39,7 @@ model Event {
   endDate     DateTime
   location    String
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   organizerId String
   organizer   Organizer @relation(fields: [organizerId], references: [id])
@@ -52,20 +53,26 @@ model Event {
   sponsors      Sponsor[]
   reviews       Review[]
   notifications Notification[]
+
+  @@map("events")
 }
 
 model Organizer {
-  id          String   @id @default(uuid())
+  id          String          @id @default(uuid())
   name        String
   companyName String
   contactInfo String
-  verified    Boolean  @default(false)
-  createdAt   DateTime @default(now())
+  status      OrganizerStatus @default(PENDING) // <-- changed from verified Boolean
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   userId String @unique
   user   User   @relation(fields: [userId], references: [id])
 
   events Event[]
+
+  @@map("organizers")
 }
 
 model Venue {
@@ -74,8 +81,11 @@ model Venue {
   address   String
   mapLink   String?
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   events Event[]
+
+  @@map("venues")
 }
 
 model Session {
@@ -84,12 +94,15 @@ model Session {
   startTime DateTime
   endTime   DateTime
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   eventId String
   event   Event  @relation(fields: [eventId], references: [id])
 
   speakers SessionSpeaker[]
   reviews  Review[]
+
+  @@map("sessions")
 }
 
 model Speaker {
@@ -98,8 +111,11 @@ model Speaker {
   bio       String
   photo     String?
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   sessions SessionSpeaker[]
+
+  @@map("speakers")
 }
 
 model SessionSpeaker {
@@ -107,29 +123,37 @@ model SessionSpeaker {
   sessionId String
   speakerId String
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   session Session @relation(fields: [sessionId], references: [id])
   speaker Speaker @relation(fields: [speakerId], references: [id])
+
+  @@map("session_speakers")
 }
 
 model TicketType {
-  id        String   @id @default(uuid())
-  name      String
-  price     String
-  quantity  Int
-  createdAt DateTime @default(now())
+  id           String   @id @default(uuid())
+  name         String
+  price        Decimal  @db.Decimal(10, 2)
+  quantity     Int
+  soldQuantity Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   eventId String
   event   Event  @relation(fields: [eventId], references: [id])
 
   tickets Ticket[]
+
+  @@map("ticket_types")
 }
 
 model Ticket {
   id        String   @id @default(uuid())
   qrCode    String?
-  status    Status
+  status    Status   @default(ACTIVE)
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   userId       String
   eventId      String
@@ -140,6 +164,8 @@ model Ticket {
   event      Event      @relation(fields: [eventId], references: [id])
   ticketType TicketType @relation(fields: [ticketTypeId], references: [id])
   order      Order?     @relation(fields: [orderId], references: [id])
+
+  @@map("tickets")
 }
 
 model Order {
@@ -147,6 +173,7 @@ model Order {
   totalAmount Float
   status      OrderStatus @default(PENDING)
   createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 
   userId  String
   eventId String
@@ -156,20 +183,25 @@ model Order {
 
   payment Payment?
   tickets Ticket[]
+
+  @@map("orders")
 }
 
 model Payment {
-  id            String        @id @default(uuid())
-  provider      String
+  id            String          @id @default(uuid())
+  provider      PaymentProvider
   transactionId String?
-  status        PaymentStatus @default(PENDING)
-  createdAt     DateTime      @default(now())
+  status        PaymentStatus   @default(PENDING)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
 
   userId  String
   orderId String @unique
 
   user  User  @relation(fields: [userId], references: [id])
   order Order @relation(fields: [orderId], references: [id])
+
+  @@map("payments")
 }
 
 model Sponsor {
@@ -177,14 +209,21 @@ model Sponsor {
   name      String
   tier      String
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   eventId String
   event   Event  @relation(fields: [eventId], references: [id])
+
+  @@map("sponsors")
 }
 
 model Review {
-  id        String   @id @default(uuid())
+  id      String  @id @default(uuid())
+  rating  Int
+  comment String?
+
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   userId    String
   eventId   String?
@@ -193,19 +232,25 @@ model Review {
   user    User     @relation(fields: [userId], references: [id])
   event   Event?   @relation(fields: [eventId], references: [id])
   session Session? @relation(fields: [sessionId], references: [id])
+
+  @@map("reviews")
 }
 
 model Notification {
-  id         String   @id @default(uuid())
+  id         String    @id @default(uuid())
   message    String
-  readStatus Boolean  @default(false)
-  createdAt  DateTime @default(now())
+  readStatus Boolean   @default(false)
+  readAt     DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
   userId  String
   eventId String?
 
   user  User   @relation(fields: [userId], references: [id])
   event Event? @relation(fields: [eventId], references: [id])
+
+  @@map("notifications")
 }
 
 enum UserRole {
@@ -221,9 +266,15 @@ enum Status {
   COMPLETED
 }
 
+enum OrganizerStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 enum OrderStatus {
   PENDING
-  PORCESSING
+  PROCESSING
   SHIPPED
   DELIVERED
   CANCELLED
@@ -234,4 +285,10 @@ enum PaymentStatus {
   SUCCESS
   FAILED
   REFUNDED
+}
+
+enum PaymentProvider {
+  STRIPE
+  SSL_COMMERZ
+  PAYPAL
 }

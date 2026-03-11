@@ -57,6 +57,6 @@ export class CreateEventDto {
     required: false,
   })
   @IsOptional()
-  @IsUUID('4', { message: 'Venue ID must be a valid UUID.' })
+  @IsString()
   venueId?: string;
 }
