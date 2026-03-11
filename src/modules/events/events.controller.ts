@@ -1,6 +1,7 @@
 import { Controller, HttpCode, Post } from '@nestjs/common';
 import { EventsService } from './events.service';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { CreateEventDto } from './dto/crete-event.dto';
 
 @Controller('events')
 export class EventsController {
