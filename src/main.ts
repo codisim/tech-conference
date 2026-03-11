@@ -31,8 +31,8 @@ async function bootstrap() {
 
   // enable swagger
   const config = new DocumentBuilder()
-    .setTitle('Nest Commerce API')
-    .setDescription('API documentation for Nest Commerce application')
+    .setTitle('Event Management API for It conference')
+    .setDescription('API documentation for Event Management application')
     .setVersion('1.0.0')
     .addTag('auth')
     .addBearerAuth({
@@ -68,7 +68,7 @@ async function bootstrap() {
       operationsSorter: 'alpha',
     },
 
-    customSiteTitle: 'Nest Commerce API',
+    customSiteTitle: 'Event Management API for It conference - Swagger UI',
     customCss: `
       .swagger-ui .topbar { background-color: #4a90e2; }
       .swagger-ui .info {margin: 50px 0;}
