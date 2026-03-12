@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { EventsService } from './events.service';
 import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CreateEventDto } from './dto/crete-event.dto';
@@ -143,5 +143,50 @@ export class EventsController {
 
     async updateEventById(@Param('id') id: string, updateEventDto: UpdatedEventDto): Promise<EventResponseDto> {
         return await this.eventsService.updateEventById(id, updateEventDto);
+    }
+
+    // delete event by ID (admin only)
+    @Delete(':id')
+    @UseGuards(JwtAuthGuard, RoleGuard)
+    @Roles(UserRole.ADMIN)
+     @ApiBearerAuth('JWT-auth')
+    @ApiOperation({
+        summary: 'Delete event by ID (admin only)',
+        description: 'Delete an event by ID (admin only)'
+    })
+
+    @ApiResponse({
+        status: 200,
+        description: 'Event deleted successfully',
+    })
+
+    @ApiResponse({
+        status: 400,
+        description: 'Bad request',
+    })
+
+    @ApiResponse({
+        status: 404,
+        description: 'Event not found',
+    })
+
+    @ApiResponse({
+        status: 401,
+        description: 'Unauthorized',
+    })
+
+    @ApiResponse({
+        status: 403,
+        description: 'Forbidden',
+    })
+
+    @ApiResponse({
+        status: 500,
+        description: 'Internal server error',
+    })
+
+    async deleteEventById(@Param('id') id: string): Promise<{message: string}> {
+        await this.eventsService.deleteEventById(id);
+        return { message: 'Event deleted successfully' };
     }
 }

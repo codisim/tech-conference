@@ -201,4 +201,16 @@ export class EventsService {
             throw new InternalServerErrorException('Failed to update event');
         }
     }
+
+    // delete event by ID (admin only)
+    async deleteEventById(id: string): Promise<void> {
+        try {
+            await this.prisma.event.delete({
+                where: { id }
+            });
+        } catch (error) {
+            console.error('Error deleting event:', error);
+            throw new InternalServerErrorException('Failed to delete event');
+        }
+    }
 }
