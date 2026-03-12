@@ -34,4 +34,6 @@ export class EventsController {
         return this.eventsService.createEvent(createEventDto);
     }
 
+    
+
 }

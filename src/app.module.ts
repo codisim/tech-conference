@@ -7,6 +7,7 @@ import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './modules/users/users.module';
 import { EventsModule } from './modules/events/events.module';
 import { OrganizersModule } from './modules/organizers/organizers.module';
+import { VenuesModule } from './modules/venues/venues.module';
 
 @Module({
   imports: [
@@ -20,7 +21,8 @@ import { OrganizersModule } from './modules/organizers/organizers.module';
     AuthModule,
     UsersModule,
     EventsModule,
-    OrganizersModule
+    OrganizersModule,
+    VenuesModule
   ],
   controllers: [AppController],
   providers: [AppService],
