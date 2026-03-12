@@ -1,7 +1,7 @@
 import { Body, Controller, HttpCode, Post, Patch, Param, Request, ForbiddenException, UseGuards } from '@nestjs/common';
 import { OrganizersService } from './organizers.service';
 import { Roles } from 'src/common/decorators/role.decorators';
-import { UserRole } from '@prisma/client';
+import { OrganizerStatus, UserRole } from '@prisma/client';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateOrganizerDto } from './dto/create-organizer.dto';
 import { OrganizerResponseDto } from './dto/organizer-response.dto';
@@ -18,7 +18,7 @@ export class OrganizersController {
     @Post('request')
     @HttpCode(201)
     @UseGuards(JwtAuthGuard, RoleGuard)
-    @Roles(UserRole.ADMIN)
+    @Roles(UserRole.ADMIN, UserRole.USER)
     @ApiBearerAuth('JWT-auth')
     @ApiOperation({
         summary: 'Request organizer account',
@@ -44,10 +44,14 @@ export class OrganizersController {
     @Patch('status/:id')
     @Roles(UserRole.ADMIN)
     @ApiOperation({ summary: 'Update organizer status (admin)', description: 'Admin can approve or reject a pending organizer' })
-    @ApiResponse({ status: 200, description: 'Organizer status updated', type: OrganizerResponseDto })
+    @ApiResponse({ 
+        status: 200, 
+        description: 'Organizer status updated', 
+        type: OrganizerResponseDto 
+    })
     async updateOrganizerStatus(
         @Param('id') organizerId: string,
-        @Body('status') status: 'PENDING' | 'APPROVED' | 'REJECTED'
+        @Body('status') status: OrganizerStatus
     ): Promise<OrganizerResponseDto> {
         return this.organizersService.updateOrganizerStatus(organizerId, status);
     }

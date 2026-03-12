@@ -2,6 +2,7 @@ import { Injectable, InternalServerErrorException, BadRequestException, NotFound
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateOrganizerDto } from './dto/create-organizer.dto';
 import { OrganizerResponseDto } from './dto/organizer-response.dto';
+import { OrganizerStatus } from '@prisma/client';
 
 @Injectable()
 export class OrganizersService {
@@ -37,7 +38,8 @@ export class OrganizersService {
         }
     }
     // Admin approves/rejects organizer
-    async updateOrganizerStatus(organizerId: string, status: 'PENDING' | 'APPROVED' | 'REJECTED'): Promise<OrganizerResponseDto> {
+    async updateOrganizerStatus(organizerId: string, status: OrganizerStatus): Promise<OrganizerResponseDto> {
+
         // Check if organizer exists
         const organizer = await this.prisma.organizer.findUnique({ where: { id: organizerId } });
         if (!organizer) throw new NotFoundException('Organizer not found');
@@ -45,7 +47,9 @@ export class OrganizersService {
         try {
             const updatedOrganizer = await this.prisma.organizer.update({
                 where: { id: organizerId },
-                data: { status },
+                data: {
+                    status: OrganizerStatus.APPROVED
+                },
             });
 
             return updatedOrganizer;
