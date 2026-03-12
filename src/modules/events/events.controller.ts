@@ -7,6 +7,7 @@ import { Roles } from 'src/common/decorators/role.decorators';
 import { UserRole } from '@prisma/client';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { RoleGuard } from 'src/common/guards/roles.guard';
+import { UpdatedEventDto } from './dto/update-event-dto';
 
 @Controller('events')
 export class EventsController {
@@ -140,7 +141,7 @@ export class EventsController {
         description: 'Internal server error',
     })
 
-    async updateEventById(@Param('id') id: string, updateEventDto: CreateEventDto): Promise<EventResponseDto> {
-        return this.eventsService.updateEventById(id, updateEventDto);
+    async updateEventById(@Param('id') id: string, updateEventDto: UpdatedEventDto): Promise<EventResponseDto> {
+        return await this.eventsService.updateEventById(id, updateEventDto);
     }
 }

@@ -2,6 +2,7 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateEventDto } from './dto/crete-event.dto';
 import { EventResponseDto } from './dto/event-response.dto';
+import { UpdatedEventDto } from './dto/update-event-dto';
 
 @Injectable()
 export class EventsService {
@@ -143,7 +144,7 @@ export class EventsService {
     }
 
     // update event by ID (admin only)
-    async updateEventById(id: string, updateEventDto: CreateEventDto): Promise<EventResponseDto> {
+    async updateEventById(id: string, updateEventDto: UpdatedEventDto): Promise<EventResponseDto> {
         const { title, description, startDate, endDate, location, organizerId } = updateEventDto;
 
         const existOrganizer = await this.prisma.organizer.findUnique({
