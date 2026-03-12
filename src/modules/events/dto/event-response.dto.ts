@@ -57,23 +57,23 @@ export class EventResponseDto {
   })
   venueId?: string | null;
 
-  @ApiProperty({
-    description: 'Organizer information',
-    example: {
-      id: 'c3cbb9c1-19e5-4b78-9e7c-9c7c1a45b1d0',
-      name: 'Tech Events Organizer',
-      companyName: 'Tech Events Ltd',
-      contactInfo: 'contact@techevents.com',
-      verified: true
-    }
-  })
-  organizer: {
-    id: string;
-    name: string;
-    companyName: string;
-    contactInfo: string;
-    verified: boolean;
-  };
+  // @ApiProperty({
+  //   description: 'Organizer information',
+  //   example: {
+  //     id: 'c3cbb9c1-19e5-4b78-9e7c-9c7c1a45b1d0',
+  //     name: 'Tech Events Organizer',
+  //     companyName: 'Tech Events Ltd',
+  //     contactInfo: 'contact@techevents.com',
+  //     verified: true
+  //   }
+  // })
+  // organizer: {
+  //   id: string;
+  //   name: string;
+  //   companyName: string;
+  //   contactInfo: string;
+  //   verified: boolean;
+  // };
 
   @ApiProperty({
     description: 'Venue information',

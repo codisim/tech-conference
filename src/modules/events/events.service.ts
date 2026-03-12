@@ -46,7 +46,6 @@ export class EventsService {
                             name: true,
                             companyName: true,
                             contactInfo: true,
-                            verified: true
                         }
                     },
                     venue: {
