@@ -102,4 +102,43 @@ export class EventsService {
             throw new InternalServerErrorException('Failed to fetch events');
         }
     }
+
+    // get event by ID
+    async getEventById(id: string): Promise<any> {
+        try {
+            const event = await this.prisma.event.findUnique({
+                where: { id },
+                select: {
+                    id: true,
+                    title: true,
+                    description: true,
+                    startDate: true,
+                    endDate: true,
+                    location: true,
+                    createdAt: true,
+                    organizerId: true,
+                    organizer: {
+                        select: {
+                            id: true,
+                            name: true,
+                            companyName: true,
+                            contactInfo: true,
+                        }
+                    },
+                    venue: {
+                        select: {
+                            id: true,
+                            name: true,
+                            address: true,
+                        }
+                    }
+                }
+            });
+
+            return event;
+        } catch (error) {
+            console.error('Error fetching event by ID:', error);
+            throw new InternalServerErrorException('Failed to fetch event by ID');
+        }
+    }
 }
