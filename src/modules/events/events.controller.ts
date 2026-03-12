@@ -1,17 +1,21 @@
-import { Body, Controller, HttpCode, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { EventsService } from './events.service';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CreateEventDto } from './dto/crete-event.dto';
 import { EventResponseDto } from './dto/event-response.dto';
 import { Roles } from 'src/common/decorators/role.decorators';
 import { UserRole } from '@prisma/client';
+import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { RoleGuard } from 'src/common/guards/roles.guard';
 
 @Controller('events')
 export class EventsController {
     constructor(private readonly eventsService: EventsService) { }
 
     @Post('create')
+    @UseGuards(JwtAuthGuard, RoleGuard)
     @Roles(UserRole.ADMIN)
+     @ApiBearerAuth('JWT-auth')
     @HttpCode(201)
     @ApiOperation({ summary: 'Create a new event (admin only)', description: 'Create a new event with name, description, date and location' })
     @ApiResponse({
@@ -35,10 +39,10 @@ export class EventsController {
     }
 
     // Get all events
-    @Post()
+    @Get()
     @HttpCode(200)
     @ApiOperation({
-        summary: 'Get all events (admin only)',
+        summary: 'Get all events',
         description: 'Get a list of all events'
     })
 
@@ -63,7 +67,7 @@ export class EventsController {
     }
 
     // Get event by ID
-    @Post(':id')
+    @Get(':id')
     @HttpCode(200)
     @ApiOperation({
         summary: 'Get event by ID',
@@ -92,9 +96,51 @@ export class EventsController {
     })
 
     async getEventById(@Param('id') id: string): Promise<EventResponseDto> {
-        return this.eventsService.getEventById(id); 
+        return this.eventsService.getEventById(id);
     }
-    
 
+    // update event by ID (admin only)
+    @Patch(':id')
+    @UseGuards(JwtAuthGuard, RoleGuard)
+    @Roles(UserRole.ADMIN)
+     @ApiBearerAuth('JWT-auth')
+    @ApiOperation({
+        summary: 'Update event by ID (admin only)',
+        description: 'Update details of an event by ID (admin only)'
+    })
 
+    @ApiResponse({
+        status: 200,
+        description: 'Event updated successfully',
+        type: EventResponseDto
+    })
+
+    @ApiResponse({
+        status: 400,
+        description: 'Bad request',
+    })
+
+    @ApiResponse({
+        status: 404,
+        description: 'Event not found',
+    })
+
+    @ApiResponse({
+        status: 401,
+        description: 'Unauthorized',
+    })
+
+    @ApiResponse({
+        status: 403,
+        description: 'Forbidden',
+    })
+
+    @ApiResponse({
+        status: 500,
+        description: 'Internal server error',
+    })
+
+    async updateEventById(@Param('id') id: string, updateEventDto: CreateEventDto): Promise<EventResponseDto> {
+        return this.eventsService.updateEventById(id, updateEventDto);
+    }
 }
