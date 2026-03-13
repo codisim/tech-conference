@@ -180,6 +180,41 @@ export class SessionsController {
 
     async deleteSession(@Param('id') id: string): Promise<{ message: string }> {
         return this.sessionsService.deleteSession(id);
-    }   
+    }
+
+
+    // delete all sessions for an event (only admin)
+    @Post('delete/event/:eventId')
+    @UseGuards(JwtAuthGuard, RoleGuard)
+    @Roles(UserRole.ADMIN)
+    @ApiBearerAuth('JWT-auth')
+    @ApiOperation({
+        summary: 'Delete all sessions for an event',
+        description: 'Only admins can delete all sessions for an event'
+    })
+
+    @ApiResponse({
+        status: 200,
+        description: 'Sessions deleted successfully',
+    })
+
+    @ApiResponse({
+        status: 401,
+        description: 'Unauthorized'
+    })
+
+    @ApiResponse({
+        status: 403,
+        description: 'Forbidden'
+    })
+
+    @ApiResponse({
+        status: 500,
+        description: 'Internal Server Error'
+    })
+
+    async deleteSessionsByEventId(@Param('eventId') eventId: string): Promise<{ message: string }> {
+        return this.sessionsService.deleteSessionsByEventId(eventId);
+    }
 
 }

@@ -122,6 +122,14 @@ export class SessionsService {
     // delete session (only admin)
     async deleteSession(id: string): Promise<{ message: string }> {
         try {
+
+            const existingSession = await this.prisma.session.findUnique({
+                where: { id }
+            });
+
+            if (!existingSession)
+                throw new InternalServerErrorException('Session not found');
+
             await this.prisma.session.delete({
                 where: { id }
             });
@@ -130,6 +138,32 @@ export class SessionsService {
         } catch (error) {
             console.error('Error deleting session:', error);
             throw new InternalServerErrorException('Failed to delete session');
+        }
+    }
+
+
+    // delete all sessions for an event (only admin)
+    async deleteSessionsByEventId(eventId: string): Promise<{ message: string }> {
+        try {
+
+            const existingSessions = await this.prisma.session.findMany({
+                where: { eventId }
+            });
+
+            if (!existingSessions)
+                throw new InternalServerErrorException('Event not found');
+
+            if (existingSessions.length === 0)
+                throw new InternalServerErrorException('No sessions found for the event');
+
+            await this.prisma.session.deleteMany({
+                where: { eventId }
+            });
+
+            return { message: 'All sessions for the event deleted successfully' };
+        } catch (error) {
+            console.error('Error deleting sessions for event:', error);
+            throw new InternalServerErrorException('Failed to delete sessions for event');
         }
     }
 
