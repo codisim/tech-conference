@@ -119,4 +119,18 @@ export class SessionsService {
         }
     }
 
+    // delete session (only admin)
+    async deleteSession(id: string): Promise<{ message: string }> {
+        try {
+            await this.prisma.session.delete({
+                where: { id }
+            });
+
+            return { message: 'Session deleted successfully' };
+        } catch (error) {
+            console.error('Error deleting session:', error);
+            throw new InternalServerErrorException('Failed to delete session');
+        }
+    }
+
 }

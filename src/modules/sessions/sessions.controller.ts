@@ -147,4 +147,39 @@ export class SessionsController {
     async updateSession(@Param('id') id: string, @Body() updateSessionDto: UpdateSessionDto): Promise<SessionResponseDto> {
         return this.sessionsService.updateSession(id, updateSessionDto);
     }
+
+    // delete session (only admin)
+    @Post('delete/:id')
+    @UseGuards(JwtAuthGuard, RoleGuard)
+    @Roles(UserRole.ADMIN)
+    @ApiBearerAuth('JWT-auth')
+    @ApiOperation({
+        summary: 'Delete a session',
+        description: 'Only admins can delete a session'
+    })
+
+    @ApiResponse({
+        status: 200,
+        description: 'Session deleted successfully',
+    })
+
+    @ApiResponse({
+        status: 401,
+        description: 'Unauthorized'
+    })
+
+    @ApiResponse({
+        status: 403,
+        description: 'Forbidden'
+    })
+
+    @ApiResponse({
+        status: 500,
+        description: 'Internal Server Error'
+    })
+
+    async deleteSession(@Param('id') id: string): Promise<{ message: string }> {
+        return this.sessionsService.deleteSession(id);
+    }   
+
 }
