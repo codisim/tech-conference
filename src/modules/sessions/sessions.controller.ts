@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { SessionsService } from './sessions.service';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
@@ -7,6 +7,7 @@ import { Roles } from 'src/common/decorators/role.decorators';
 import { UserRole } from '@prisma/client';
 import { CreateSessionDto } from './dto/create-sesion.dto';
 import { SessionResponseDto } from './dto/session-response.dto';
+import { UpdateSessionDto } from './dto/update-session.dto';
 
 
 @ApiTags('sessions')
@@ -51,7 +52,7 @@ export class SessionsController {
 
     // get all sessions (only admin)
     @Get()
-     @UseGuards(JwtAuthGuard, RoleGuard)
+    @UseGuards(JwtAuthGuard, RoleGuard)
     @Roles(UserRole.ADMIN)
     @ApiBearerAuth('JWT-auth')
     @ApiOperation({
@@ -111,5 +112,39 @@ export class SessionsController {
 
     async getSessionsByEventId(@Param('eventId') eventId: string): Promise<SessionResponseDto[]> {
         return this.sessionsService.getSessionsByEventId(eventId);
+    }
+
+    // update session (only admin)
+    @Patch(':id')
+    @UseGuards(JwtAuthGuard, RoleGuard)
+    @Roles(UserRole.ADMIN)
+    @ApiBearerAuth('JWT-auth')
+    @ApiOperation({
+        summary: 'Update a session',
+        description: 'Only admins can update a session'
+    })
+
+    @ApiResponse({
+        status: 200,
+        description: 'Session updated successfully',
+    })
+
+    @ApiResponse({
+        status: 401,
+        description: 'Unauthorized'
+    })
+
+    @ApiResponse({
+        status: 403,
+        description: 'Forbidden'
+    })
+
+    @ApiResponse({
+        status: 500,
+        description: 'Internal Server Error'
+    })
+
+    async updateSession(@Param('id') id: string, @Body() updateSessionDto: UpdateSessionDto): Promise<SessionResponseDto> {
+        return this.sessionsService.updateSession(id, updateSessionDto);
     }
 }

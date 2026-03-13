@@ -2,6 +2,7 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateSessionDto } from './dto/create-sesion.dto';
 import { SessionResponseDto } from './dto/session-response.dto';
+import { UpdateSessionDto } from './dto/update-session.dto';
 
 @Injectable()
 export class SessionsService {
@@ -85,4 +86,37 @@ export class SessionsService {
             throw new InternalServerErrorException('Failed to fetch sessions for event');
         }
     }
+
+    // update session (only admin)
+    async updateSession(id: string, updateSessionDto: UpdateSessionDto): Promise<SessionResponseDto> {
+        const { title, startTime, endTime, eventId } = updateSessionDto;
+
+        try {
+            const session = await this.prisma.session.update({
+                where: { id },
+                data: {
+                    title,
+                    startTime,
+                    endTime,
+                    eventId
+                },
+                select: {
+                    id: true,
+                    title: true,
+                    startTime: true,
+                    endTime: true,
+                    eventId: true,
+                    createdAt: true,
+                    updatedAt: true
+                }
+            });
+
+            return session;
+
+        } catch (error) {
+            console.error('Error updating session:', error);
+            throw new InternalServerErrorException('Failed to update session');
+        }
+    }
+
 }
