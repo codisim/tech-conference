@@ -71,4 +71,16 @@ export class OrganizersService {
             throw new InternalServerErrorException('Failed to fetch organizers');
         }
     }
+
+    // get single organizer
+    async getOrganizerById(organizerId: string): Promise<OrganizerResponseDto> {
+        try {
+            const organizer = await this.prisma.organizer.findUnique({ where: { id: organizerId } });
+            if (!organizer) throw new NotFoundException('Organizer not found');
+            return organizer;
+        } catch (error) {
+            console.error('Error fetching organizer:', error);
+            throw new InternalServerErrorException('Failed to fetch organizer');
+        }
+    }
 }

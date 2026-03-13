@@ -44,6 +44,7 @@ export class OrganizersController {
 
     // Admin approves/rejects organizer
     @Patch('status/:id')
+    @UseGuards(JwtAuthGuard, RoleGuard)
     @Roles(UserRole.ADMIN)
     @ApiOperation({
         summary: 'Update organizer status (admin)',
@@ -69,16 +70,22 @@ export class OrganizersController {
 
     // get all organizer (admin)
     @Get()
+    @UseGuards(JwtAuthGuard, RoleGuard)
     @Roles(UserRole.ADMIN)
+    @ApiBearerAuth('JWT-auth')
     @ApiOperation({
-        summary: 'Get all organizers (admin)',
-        description: 'Admin can view all organizer requests and their statuses'
+        summary: 'Get all organizers (admin)'
     })
 
     @ApiResponse({
         status: 200,
         description: 'List of organizers',
         type: [OrganizerResponseDto],
+    })
+
+    @ApiResponse({
+        status: 401,
+        description: 'Unauthorized. The user is not authenticated or the token is invalid.'
     })
 
 
@@ -90,5 +97,38 @@ export class OrganizersController {
 
     async getAllOrganizers(): Promise<OrganizerResponseDto[]> {
         return this.organizersService.getAllOrganizers();
+    }
+
+
+    // get single organizer
+    @Get(':id')
+    @UseGuards(JwtAuthGuard, RoleGuard)
+    @Roles(UserRole.ADMIN, UserRole.ORGANIZER)
+    @ApiOperation({
+        summary: 'Get organizer by ID',
+        description: 'Admin can view any organizer. Organizers can view their own status.'
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'Organizer details',
+        type: OrganizerResponseDto,
+    })
+    @ApiResponse({
+        status: 403,
+        description: 'Forbidden. Only admins or the organizer themselves can access this endpoint.',
+    })
+    async getOrganizerById(
+        @Param('id') organizerId: string,
+        @Request() req: any
+    ): Promise<OrganizerResponseDto> {
+        const userId = req.user.id;
+        const userRole = req.user.role;
+
+        // Admins can view any organizer, organizers can only view their own status
+        if (userRole === UserRole.ORGANIZER && userId !== organizerId) {
+            throw new ForbiddenException('You can only view your own organizer status');
+        }
+
+        return this.organizersService.getOrganizerById(organizerId);
     }
 }
