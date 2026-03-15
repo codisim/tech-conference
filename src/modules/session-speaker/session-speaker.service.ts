@@ -32,8 +32,24 @@ export class SessionSpeakerService {
     }
 
     // get all session speaker (admin)
-    async getAllSessionSpeaker():Promise<SessionSpeakerResponseDto[]>{
+    async getAllSessionSpeakers():Promise<SessionSpeakerResponseDto[]>{
+        try {
+            const sessionSpeaker = await this.prisma.sessionSpeaker.findMany({
+                select: {
+                    id: true,
+                    sessionId: true,
+                    speakerId: true,
+                    createdAt: true,
+                    updatedAt: true
+                }
+            })
+
+            return sessionSpeaker;
             
+        } catch (error) {
+            console.error('Error to retried all session-speaker');
+            throw new InternalServerErrorException('Failed to retried all session-speaker');
+        }
     }
 
 }

@@ -78,8 +78,8 @@ export class SessionSpeakerController {
         description: 'Internal server error',
     })
 
-    async getAllSessionSpeakers(@Body() createSessionSpeakerDto: CreateSessionSpeakerDto): Promise<SessionSpeakerResponseDto[]> {
-        return this.sessionSpeakerService.getAllSessionSpeakers(createSessionSpeakerDto);
+    async getAllSessionSpeakers(): Promise<SessionSpeakerResponseDto[]> {
+        return this.sessionSpeakerService.getAllSessionSpeakers();
     }
 
 
