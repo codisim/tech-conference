@@ -54,13 +54,14 @@ export class SpeakersController {
     }
 
     // delete a speaker
-    // @Delete(':id')
-    // @ApiOperation({ summary: 'Delete a speaker by ID' })
-    // @ApiResponse({ status: 200, description: 'Speaker deleted successfully' })
-    // @ApiResponse({ status: 404, description: 'Speaker not found' })
-    // @ApiResponse({ status: 500, description: 'Internal Server Error' })
-    // async deleteSpeaker(@Body('id') id: string): Promise<void> {
-    //     // Implementation for deleting a speaker will go here
-    // }
+    @Delete(':id')
+    @ApiOperation({ summary: 'Delete a speaker by ID' })
+    @ApiResponse({ status: 200, description: 'Speaker deleted successfully' })
+    @ApiResponse({ status: 404, description: 'Speaker not found' })
+    @ApiResponse({ status: 500, description: 'Internal Server Error' })
+    async deleteSpeaker(@Body('id') id: string): Promise<{message: string}> {
+        await this.speakersService.deleteSpeaker(id);
+        return { message: 'Speaker deleted successfully' };
+    }
 
 }

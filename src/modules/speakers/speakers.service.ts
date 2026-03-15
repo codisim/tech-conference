@@ -97,4 +97,26 @@ export class SpeakersService {
             throw new InternalServerErrorException('Failed to update speaker');
         }
     }
+
+
+    // delete a speaker
+    async deleteSpeaker(id: string): Promise<{ message: string }> {
+        const existSpeaker = await this.prisma.speaker.findUnique({
+            where: { id }
+        });
+
+        if (!existSpeaker)
+            throw new NotFoundException('Speaker not found');
+
+        try {
+            await this.prisma.speaker.delete({
+                where: { id }
+            });
+            return { message: 'Speaker deleted successfully' };
+        } catch (error) {
+            console.error('Error deleting speaker:', error);
+            throw new InternalServerErrorException('Failed to delete speaker');
+        }
+
+    }
 }
