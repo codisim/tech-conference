@@ -29,7 +29,16 @@ export class SpeakersController {
     async getAllSpeakers(): Promise<SpeakerResponseDto[]> {
         return this.speakersService.getAllSpeakers();
     }
+
     // get a speaker
+    @Get(':id')
+    @ApiOperation({ summary: 'Get a speaker by ID' })
+    @ApiResponse({ status: 200, description: 'Speaker retrieved successfully' })
+    @ApiResponse({ status: 404, description: 'Speaker not found' })
+    @ApiResponse({ status: 500, description: 'Internal Server Error' })
+    async getSpeakerById(@Body('id') id: string): Promise<SpeakerResponseDto> {
+        return this.speakersService.getSpeakerById(id);
+    }
 
     // update a speaker
 

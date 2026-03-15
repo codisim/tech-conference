@@ -1,13 +1,15 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { CreateSpeakerDto } from './dto/create-speaker.dto';
+import { SpeakerResponseDto } from './dto/response-speaker.dto';
 
 @Injectable()
 export class SpeakersService {
     constructor(private readonly prisma: PrismaService) { }
 
     // create a speaker
-    async CreateSpeakerDto(createSpeakerDto: any) {
-        const { name, bio, eventId } = createSpeakerDto;
+    async CreateSpeakerDto(createSpeakerDto: CreateSpeakerDto): Promise<SpeakerResponseDto> {
+        const { name, bio } = createSpeakerDto;
         try {
             const speaker = await this.prisma.speaker.create({
                 data: {
@@ -32,13 +34,30 @@ export class SpeakersService {
     }
 
     // get all speakers
-    async getAllSpeakers() {
+    async getAllSpeakers(): Promise<SpeakerResponseDto[]> {
         try {
             const speakers = await this.prisma.speaker.findMany();
             return speakers;
         } catch (error) {
             console.error('Error fetching speakers:', error);
             throw new InternalServerErrorException('Failed to fetch speakers');
+        }
+    }
+
+    // get a speaker
+    async getSpeakerById(id: string): Promise<SpeakerResponseDto> {
+        try {
+            const speaker = await this.prisma.speaker.findUnique({
+                where: { id },
+            });
+
+            if (!speaker)
+                throw new NotFoundException('Speaker not found');
+
+            return speaker;
+        } catch (error) {
+            console.error('Error fetching speaker:', error);
+            throw new InternalServerErrorException('Failed to fetch speaker');
         }
     }
 }
