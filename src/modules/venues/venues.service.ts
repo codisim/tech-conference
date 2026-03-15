@@ -1,12 +1,15 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { CreateVenueDto } from './dto/create-vanue.dto';
+import { VenueResponseDto } from './dto/vanue-response.dto';
+import { UpdateVenueDto } from './dto/update-vanue.dto';
 
 @Injectable()
 export class VenuesService {
     constructor(private prisma: PrismaService) { }
 
     // create a venue
-    async createVenue(createVenueDto: any) {
+    async createVenue(createVenueDto: CreateVenueDto): Promise<VenueResponseDto> {
         const { name, address, mapLink } = createVenueDto;
 
         try {
@@ -33,7 +36,7 @@ export class VenuesService {
     }
 
     // get all venues
-    async getAllVenues() {
+    async getAllVenues(): Promise<VenueResponseDto[]> {
         try {
             const venues = await this.prisma.venue.findMany({
                 select: {
@@ -53,7 +56,7 @@ export class VenuesService {
     }
 
     // get a venue by id
-    async getVenueById(id: string) {
+    async getVenueById(id: string): Promise<VenueResponseDto> {
         try {
             const venue = await this.prisma.venue.findUnique({
                 where: { id },
@@ -80,7 +83,7 @@ export class VenuesService {
     }
 
     // update a venue by id
-    async updateVenue(id: string, updateVenueDto: any) {
+    async updateVenue(id: string, updateVenueDto: UpdateVenueDto): Promise<VenueResponseDto> {
         const { name, address, mapLink } = updateVenueDto;
 
         try {

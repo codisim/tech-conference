@@ -31,4 +31,9 @@ export class SessionSpeakerService {
         }
     }
 
+    // get all session speaker (admin)
+    async getAllSessionSpeaker():Promise<SessionSpeakerResponseDto[]>{
+            
+    }
+
 }
