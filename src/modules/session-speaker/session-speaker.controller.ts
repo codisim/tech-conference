@@ -1,12 +1,13 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { SessionSpeakerService } from './session-speaker.service';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { RoleGuard } from 'src/common/guards/roles.guard';
 import { Roles } from 'src/common/decorators/role.decorators';
 import { UserRole } from '@prisma/client';
 import { CreateSessionSpeakerDto } from './dto/create-session.dto';
 import { SessionSpeakerResponseDto } from './dto/response-session.dto';
+import { UpdateSessionSpeakerDto } from './dto/update-session.dto';
 
 @ApiTags('session-speaker')
 @Controller('session-speaker')
@@ -50,9 +51,9 @@ export class SessionSpeakerController {
 
     // get all session speaker (admin)
     @Get()
-    @UseGuards(JwtAuthGuard, RoleGuard)
-    @Roles(UserRole.ADMIN)
-    @ApiBearerAuth('JWT-auth')
+    // @UseGuards(JwtAuthGuard, RoleGuard)
+    // @Roles(UserRole.ADMIN)
+    // @ApiBearerAuth('JWT-auth')
     @HttpCode(HttpStatus.OK)
     @ApiOperation({
         summary: 'Get all session speakers (admin only)',
@@ -85,9 +86,9 @@ export class SessionSpeakerController {
 
     // get single session-speaker
     @Get(':id')
-    @UseGuards(JwtAuthGuard, RoleGuard)
-    @Roles(UserRole.ADMIN)
-    @ApiBearerAuth('JWT-auth')
+    // @UseGuards(JwtAuthGuard, RoleGuard)
+    // @Roles(UserRole.ADMIN)
+    // @ApiBearerAuth('JWT-auth')
     @HttpCode(HttpStatus.OK)
     @ApiOperation({
         summary: 'Get single session speaker (admin only)',
@@ -96,10 +97,10 @@ export class SessionSpeakerController {
     @ApiResponse({
         status: 200,
         description: 'Session speaker retrieved successfully',
-    })  
+    })
 
 
-     @ApiResponse({
+    @ApiResponse({
         status: 401,
         description: 'Unauthorized. Invalid or expired access token',
     })
@@ -116,6 +117,43 @@ export class SessionSpeakerController {
 
     async getSingleSessionSpeaker(@Param('id') id: string): Promise<SessionSpeakerResponseDto> {
         return this.sessionSpeakerService.getSingleSessionSpeaker(id);
+    }
+
+    // update a session speaker
+    @Patch(':id')
+    @UseGuards(JwtAuthGuard, RoleGuard)
+    @Roles(UserRole.ADMIN)
+    @ApiBearerAuth('JWT-auth')
+    @HttpCode(HttpStatus.OK)
+    @ApiBody({
+        type: CreateSessionSpeakerDto,
+    })
+    @ApiOperation({
+        summary: 'Update a session speaker (admin only)',
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'Session speaker updated successfully',
+    })
+
+    @ApiResponse({
+        status: 401,
+        description: 'Unauthorized. Invalid or expired access token',
+    })
+
+    @ApiResponse({
+        status: 403,
+        description: 'Forbidden. User does not have permission to perform this action',
+    })
+
+    @ApiResponse({
+        status: 500,
+        description: 'Internal server error',
+    })
+
+    async updateSessionSpeaker(@Param('id') id: string, @Body() updateSessionSpeakerDto: UpdateSessionSpeakerDto
+    ): Promise<SessionSpeakerResponseDto> {
+        return this.sessionSpeakerService.updateSessionSpeaker(id, updateSessionSpeakerDto);
     }
 
 

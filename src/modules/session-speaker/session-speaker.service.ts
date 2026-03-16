@@ -1,7 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateSessionSpeakerDto } from './dto/create-session.dto';
 import { SessionSpeakerResponseDto } from './dto/response-session.dto';
+import { UpdateSessionSpeakerDto } from './dto/update-session.dto';
 
 @Injectable()
 export class SessionSpeakerService {
@@ -74,5 +75,43 @@ export class SessionSpeakerService {
             throw new InternalServerErrorException('Failed to retried single session-speaker');
         }
     }
+
+
+    // update a session speaker
+    async updateSessionSpeaker(id: string, updateSessionSpeakerDto: UpdateSessionSpeakerDto): Promise<SessionSpeakerResponseDto> {
+        
+        const existSessionSpeaker = await this.prisma.sessionSpeaker.findUnique({
+            where: {
+                id
+            }
+        })
+
+        if(!existSessionSpeaker)
+            throw new NotFoundException('Session speaker not found');
+        
+        try {
+                const sessionSpeaker = await this.prisma.sessionSpeaker.update({
+                    where: {
+                        id
+                    },
+                    data: {
+                        sessionId: updateSessionSpeakerDto.sessionId,
+                        speakerId: updateSessionSpeakerDto.speakerId
+                    },
+                    select: {
+                        id: true,
+                        sessionId: true,
+                        speakerId: true,
+                        createdAt: true,
+                        updatedAt: true
+                    }
+                })
+    
+                return sessionSpeaker;  
+            } catch (error) {
+                console.error('Error to update session-speaker');
+                throw new InternalServerErrorException('Failed to update session-speaker');
+            }
+        }   
 
 }

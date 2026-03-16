@@ -1,4 +1,4 @@
 import { PartialType } from "@nestjs/swagger";
-import { CreateSessionDto } from "src/modules/sessions/dto/create-sesion.dto";
+import { CreateSessionSpeakerDto } from "./create-session.dto";
 
-export class UpdateSessionDto extends PartialType(CreateSessionDto) { }
+export class UpdateSessionSpeakerDto extends PartialType(CreateSessionSpeakerDto) { }
