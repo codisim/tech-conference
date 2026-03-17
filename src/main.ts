@@ -15,10 +15,10 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
       transform: true,
       transformOptions: {
-        enableImplicitConversion: true
-      }
-    })
-  )
+        enableImplicitConversion: true,
+      },
+    }),
+  );
 
   // enable CORS
   app.enableCors({
@@ -28,38 +28,39 @@ async function bootstrap() {
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
   });
 
-
   // enable swagger
   const config = new DocumentBuilder()
     .setTitle('Event Management API for It conference')
     .setDescription('API documentation for Event Management application')
     .setVersion('1.0.0')
     // .addTag('auth')
-    .addBearerAuth({
-      type: 'http',
-      scheme: 'bearer',
-      bearerFormat: 'JWT',
-      name: 'JWT',
-      description: 'Enter JWT token',
-      in: 'header'
-    },
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Enter JWT token',
+        in: 'header',
+      },
       'JWT-auth',
     )
-    .addBearerAuth({
-      type: 'http',
-      scheme: 'bearer',
-      bearerFormat: 'JWT',
-      name: 'JWT',
-      description: 'Enter JWT token',
-      in: 'header'
-    },
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Enter JWT token',
+        in: 'header',
+      },
       'refresh-token',
     )
-    .addServer(process.env.API_SERVER_URL ?? 'http://localhost:5000', 'Development Server')
-    .build()
-    ;
-
-
+    .addServer(
+      process.env.API_SERVER_URL ?? 'http://localhost:5000',
+      'Development Server',
+    )
+    .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/v1/docs', app, document, {
     swaggerOptions: {
@@ -74,10 +75,8 @@ async function bootstrap() {
       .swagger-ui .info {margin: 50px 0;}
       .swagger-ui .info .title { font-size: 2.5em; color: #4a90e2; }
       .swagger-ui .info .description { font-size: 1.2em; color: #333; } 
-    `
-
+    `,
   });
-
 
   await app.listen(process.env.PORT ?? 5000);
 }

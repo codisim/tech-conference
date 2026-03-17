@@ -6,264 +6,267 @@ import { UpdatedEventDto } from './dto/update-event-dto';
 
 @Injectable()
 export class EventsService {
-    constructor(
-        private prisma: PrismaService
-    ) { }
+  constructor(private prisma: PrismaService) {}
 
-    async createEvent(createEventDto: CreateEventDto): Promise<EventResponseDto> {
-        const { title, description, startDate, endDate, location, organizerId } = createEventDto;
+  async createEvent(createEventDto: CreateEventDto): Promise<EventResponseDto> {
+    const { title, description, startDate, endDate, location, organizerId } =
+      createEventDto;
 
-        const existOrganizer = await this.prisma.organizer.findUnique({
-            where: { id: organizerId }
-        })
+    const existOrganizer = await this.prisma.organizer.findUnique({
+      where: { id: organizerId },
+    });
 
-        if (!existOrganizer) {
-            throw new InternalServerErrorException('Organizer not found');
-        }
-
-        try {
-            const event = await this.prisma.event.create({
-                data: {
-                    title,
-                    description,
-                    startDate,
-                    endDate,
-                    location,
-                    organizerId,
-                    venueId: createEventDto.venueId || null
-                },
-                select: {
-                    id: true,
-                    title: true,
-                    description: true,
-                    startDate: true,
-                    endDate: true,
-                    location: true,
-                    createdAt: true,
-                    organizerId: true,
-                    organizer: {
-                        select: {
-                            id: true,
-                            name: true,
-                            companyName: true,
-                            contactInfo: true,
-                        }
-                    },
-                    venue: {
-                        select: {
-                            id: true,
-                            name: true,
-                            address: true,
-                        }
-                    }
-                }
-            })
-
-            return event;
-
-        } catch (error) {
-            console.error('Error creating event:', error);
-            throw new InternalServerErrorException('Failed to create event');
-        }
+    if (!existOrganizer) {
+      throw new InternalServerErrorException('Organizer not found');
     }
 
-    // get all events
-    async getAllEvents(): Promise<EventResponseDto[]> {
-        try {
-            const events = await this.prisma.event.findMany({
-                select: {
-                    id: true,
-                    title: true,
-                    description: true,
-                    startDate: true,
-                    endDate: true,
-                    location: true,
-                    createdAt: true,
-                    organizerId: true,
-                    organizer: {
-                        select: {
-                            id: true,
-                            name: true,
-                            companyName: true,
-                            contactInfo: true,
-                        }
-                    },
-                    venue: {
-                        select: {
-                            id: true,
-                            name: true,
-                            address: true,
-                        }
-                    }
-                }
-            });
-            return events;
-        } catch (error) {
-            console.error('Error fetching events:', error);
-            throw new InternalServerErrorException('Failed to fetch events');
-        }
+    try {
+      const event = await this.prisma.event.create({
+        data: {
+          title,
+          description,
+          startDate,
+          endDate,
+          location,
+          organizerId,
+          venueId: createEventDto.venueId || null,
+        },
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          startDate: true,
+          endDate: true,
+          location: true,
+          createdAt: true,
+          organizerId: true,
+          organizer: {
+            select: {
+              id: true,
+              name: true,
+              companyName: true,
+              contactInfo: true,
+            },
+          },
+          venue: {
+            select: {
+              id: true,
+              name: true,
+              address: true,
+            },
+          },
+        },
+      });
+
+      return event;
+    } catch (error) {
+      console.error('Error creating event:', error);
+      throw new InternalServerErrorException('Failed to create event');
+    }
+  }
+
+  // get all events
+  async getAllEvents(): Promise<EventResponseDto[]> {
+    try {
+      const events = await this.prisma.event.findMany({
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          startDate: true,
+          endDate: true,
+          location: true,
+          createdAt: true,
+          organizerId: true,
+          organizer: {
+            select: {
+              id: true,
+              name: true,
+              companyName: true,
+              contactInfo: true,
+            },
+          },
+          venue: {
+            select: {
+              id: true,
+              name: true,
+              address: true,
+            },
+          },
+        },
+      });
+      return events;
+    } catch (error) {
+      console.error('Error fetching events:', error);
+      throw new InternalServerErrorException('Failed to fetch events');
+    }
+  }
+
+  // get event by ID
+  async getEventById(id: string): Promise<any> {
+    try {
+      const event = await this.prisma.event.findUnique({
+        where: { id },
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          startDate: true,
+          endDate: true,
+          location: true,
+          createdAt: true,
+          organizerId: true,
+          organizer: {
+            select: {
+              id: true,
+              name: true,
+              companyName: true,
+              contactInfo: true,
+            },
+          },
+          venue: {
+            select: {
+              id: true,
+              name: true,
+              address: true,
+            },
+          },
+        },
+      });
+
+      return event;
+    } catch (error) {
+      console.error('Error fetching event by ID:', error);
+      throw new InternalServerErrorException('Failed to fetch event by ID');
+    }
+  }
+
+  // update event by ID (admin only)
+  async updateEventById(
+    id: string,
+    updateEventDto: UpdatedEventDto,
+  ): Promise<EventResponseDto> {
+    const { title, description, startDate, endDate, location, organizerId } =
+      updateEventDto;
+
+    const existOrganizer = await this.prisma.organizer.findUnique({
+      where: { id: organizerId },
+    });
+
+    if (!existOrganizer) {
+      throw new InternalServerErrorException('Organizer not found');
     }
 
-    // get event by ID
-    async getEventById(id: string): Promise<any> {
-        try {
-            const event = await this.prisma.event.findUnique({
-                where: { id },
-                select: {
-                    id: true,
-                    title: true,
-                    description: true,
-                    startDate: true,
-                    endDate: true,
-                    location: true,
-                    createdAt: true,
-                    organizerId: true,
-                    organizer: {
-                        select: {
-                            id: true,
-                            name: true,
-                            companyName: true,
-                            contactInfo: true,
-                        }
-                    },
-                    venue: {
-                        select: {
-                            id: true,
-                            name: true,
-                            address: true,
-                        }
-                    }
-                }
-            });
+    try {
+      const event = await this.prisma.event.update({
+        where: { id },
+        data: {
+          title,
+          description,
+          startDate,
+          endDate,
+          location,
+          organizerId,
+          venueId: updateEventDto.venueId || null,
+        },
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          startDate: true,
+          endDate: true,
+          location: true,
+          createdAt: true,
+          organizerId: true,
+          organizer: {
+            select: {
+              id: true,
+              name: true,
+              companyName: true,
+              contactInfo: true,
+            },
+          },
+          venue: {
+            select: {
+              id: true,
+              name: true,
+              address: true,
+            },
+          },
+        },
+      });
 
-            return event;
-        } catch (error) {
-            console.error('Error fetching event by ID:', error);
-            throw new InternalServerErrorException('Failed to fetch event by ID');
-        }
+      return event;
+    } catch (error) {
+      console.error('Error updating event:', error);
+      throw new InternalServerErrorException('Failed to update event');
     }
+  }
 
-    // update event by ID (admin only)
-    async updateEventById(id: string, updateEventDto: UpdatedEventDto): Promise<EventResponseDto> {
-        const { title, description, startDate, endDate, location, organizerId } = updateEventDto;
-
-        const existOrganizer = await this.prisma.organizer.findUnique({
-            where: { id: organizerId }
-        })
-
-        if (!existOrganizer) {
-            throw new InternalServerErrorException('Organizer not found');
-        }
-
-        try {
-            const event = await this.prisma.event.update({
-                where: { id },
-                data: {
-                    title,
-                    description,
-                    startDate,
-                    endDate,
-                    location,
-                    organizerId,
-                    venueId: updateEventDto.venueId || null
-                },
-                select: {
-                    id: true,
-                    title: true,
-                    description: true,
-                    startDate: true,
-                    endDate: true,
-                    location: true,
-                    createdAt: true,
-                    organizerId: true,
-                    organizer: {
-                        select: {
-                            id: true,
-                            name: true,
-                            companyName: true,
-                            contactInfo: true,
-                        }
-                    },
-                    venue: {
-                        select: {
-                            id: true,
-                            name: true,
-                            address: true,
-                        }
-                    }
-                }
-            })
-
-            return event;
-
-        } catch (error) {
-            console.error('Error updating event:', error);
-            throw new InternalServerErrorException('Failed to update event');
-        }
+  // delete event by ID (admin only)
+  async deleteEventById(id: string): Promise<void> {
+    try {
+      await this.prisma.event.delete({
+        where: { id },
+      });
+    } catch (error) {
+      console.error('Error deleting event:', error);
+      throw new InternalServerErrorException('Failed to delete event');
     }
+  }
 
-    // delete event by ID (admin only)
-    async deleteEventById(id: string): Promise<void> {
-        try {
-            await this.prisma.event.delete({
-                where: { id }
-            });
-        } catch (error) {
-            console.error('Error deleting event:', error);
-            throw new InternalServerErrorException('Failed to delete event');
-        }
+  // get events by id
+  async updateVenueById(organizerId: string): Promise<EventResponseDto[]> {
+    try {
+      const events = await this.prisma.event.findMany({
+        where: { organizerId },
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          startDate: true,
+          endDate: true,
+          location: true,
+          createdAt: true,
+          organizerId: true,
+          organizer: {
+            select: {
+              id: true,
+              name: true,
+              companyName: true,
+              contactInfo: true,
+            },
+          },
+          venue: {
+            select: {
+              id: true,
+              name: true,
+              address: true,
+            },
+          },
+        },
+      });
+      return events;
+    } catch (error) {
+      console.error('Error fetching events by organizer ID:', error);
+      throw new InternalServerErrorException(
+        'Failed to fetch events by organizer ID',
+      );
     }
+  }
 
-
-
-    // get events by id
-    async updateVenueById(organizerId: string): Promise<EventResponseDto[]> {
-        try {
-            const events = await this.prisma.event.findMany({
-                where: { organizerId },
-                select: {
-                    id: true,
-                    title: true,
-                    description: true,
-                    startDate: true,
-                    endDate: true,
-                    location: true,
-                    createdAt: true,
-                    organizerId: true,
-                    organizer: {
-                        select: {
-                            id: true,
-                            name: true,
-                            companyName: true,
-                            contactInfo: true,
-                        }
-                    },
-                    venue: {
-                        select: {
-                            id: true,
-                            name: true,
-                            address: true,
-                        }
-                    }
-                }
-            });
-            return events;
-        } catch (error) {
-            console.error('Error fetching events by organizer ID:', error);
-            throw new InternalServerErrorException('Failed to fetch events by organizer ID');
-        }
+  // gt events by organizer id
+  async getEventsByOrganizerId(organizerId: string): Promise<any[]> {
+    try {
+      const events = await this.prisma.event.findMany({
+        where: { organizerId },
+      });
+      return events;
+    } catch (error) {
+      console.error('Error fetching events for organizer:', error);
+      throw new InternalServerErrorException(
+        'Failed to fetch events for organizer',
+      );
     }
-
-
-    // gt events by organizer id
-    async getEventsByOrganizerId(organizerId: string): Promise<any[]> {
-        try {
-            const events = await this.prisma.event.findMany({ where: { organizerId } });
-            return events;
-        } catch (error) {
-            console.error('Error fetching events for organizer:', error);
-            throw new InternalServerErrorException('Failed to fetch events for organizer');
-        }
-    }
-
+  }
 }

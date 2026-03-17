@@ -4,6 +4,6 @@ import { SessionSpeakerController } from './session-speaker.controller';
 
 @Module({
   providers: [SessionSpeakerService],
-  controllers: [SessionSpeakerController]
+  controllers: [SessionSpeakerController],
 })
 export class SessionSpeakerModule {}

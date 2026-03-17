@@ -16,7 +16,6 @@ import { TicketTypeModule } from './modules/ticket-type/ticket-type.module';
 
 @Module({
   imports: [
-
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
@@ -32,9 +31,9 @@ import { TicketTypeModule } from './modules/ticket-type/ticket-type.module';
     SpeakersModule,
     SessionSpeakerModule,
     TicketModule,
-    TicketTypeModule
+    TicketTypeModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

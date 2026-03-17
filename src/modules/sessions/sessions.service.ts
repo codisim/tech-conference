@@ -6,165 +6,167 @@ import { UpdateSessionDto } from './dto/update-session.dto';
 
 @Injectable()
 export class SessionsService {
-    constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
-    // create a new session
-    async createSession(createSessionDto: CreateSessionDto): Promise<SessionResponseDto> {
-        const { title, startTime, endTime, eventId } = createSessionDto;
+  // create a new session
+  async createSession(
+    createSessionDto: CreateSessionDto,
+  ): Promise<SessionResponseDto> {
+    const { title, startTime, endTime, eventId } = createSessionDto;
 
-        try {
+    try {
+      const session = await this.prisma.session.create({
+        data: {
+          title,
+          startTime,
+          endTime,
+          eventId,
+        },
+        select: {
+          id: true,
+          title: true,
+          startTime: true,
+          endTime: true,
+          eventId: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
 
-            const session = await this.prisma.session.create({
-                data: {
-                    title,
-                    startTime,
-                    endTime,
-                    eventId
-                },
-                select: {
-                    id: true,
-                    title: true,
-                    startTime: true,
-                    endTime: true,
-                    eventId: true,
-                    createdAt: true,
-                    updatedAt: true
-                }
-            });
-
-            return session;
-
-        } catch (error) {
-            console.error('Error creating session:', error);
-            throw new InternalServerErrorException('Failed to create session');
-        }
+      return session;
+    } catch (error) {
+      console.error('Error creating session:', error);
+      throw new InternalServerErrorException('Failed to create session');
     }
+  }
 
-    // // get all sessions (only admin)
-    async getAllSessions(): Promise<SessionResponseDto[]> {
-        try {
-            const sessions = await this.prisma.session.findMany({
-                select: {
-                    id: true,
-                    title: true,
-                    startTime: true,
-                    endTime: true,
-                    eventId: true,
-                    createdAt: true,
-                    updatedAt: true
-                }
-            });
+  // // get all sessions (only admin)
+  async getAllSessions(): Promise<SessionResponseDto[]> {
+    try {
+      const sessions = await this.prisma.session.findMany({
+        select: {
+          id: true,
+          title: true,
+          startTime: true,
+          endTime: true,
+          eventId: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
 
-            return sessions;
-
-        } catch (error) {
-            console.error('Error fetching sessions:', error);
-            throw new InternalServerErrorException('Failed to fetch sessions');
-        }
+      return sessions;
+    } catch (error) {
+      console.error('Error fetching sessions:', error);
+      throw new InternalServerErrorException('Failed to fetch sessions');
     }
+  }
 
-    // get all sessions for an event
-    async getSessionsByEventId(eventId: string): Promise<SessionResponseDto[]> {
-        try {
-            const sessions = await this.prisma.session.findMany({
-                where: { eventId },
-                select: {
-                    id: true,
-                    title: true,
-                    startTime: true,
-                    endTime: true,
-                    eventId: true,
-                    createdAt: true,
-                    updatedAt: true
-                }
-            });
+  // get all sessions for an event
+  async getSessionsByEventId(eventId: string): Promise<SessionResponseDto[]> {
+    try {
+      const sessions = await this.prisma.session.findMany({
+        where: { eventId },
+        select: {
+          id: true,
+          title: true,
+          startTime: true,
+          endTime: true,
+          eventId: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
 
-            return sessions;
-
-        } catch (error) {
-            console.error('Error fetching sessions for event:', error);
-            throw new InternalServerErrorException('Failed to fetch sessions for event');
-        }
+      return sessions;
+    } catch (error) {
+      console.error('Error fetching sessions for event:', error);
+      throw new InternalServerErrorException(
+        'Failed to fetch sessions for event',
+      );
     }
+  }
 
-    // update session (only admin)
-    async updateSession(id: string, updateSessionDto: UpdateSessionDto): Promise<SessionResponseDto> {
-        const { title, startTime, endTime, eventId } = updateSessionDto;
+  // update session (only admin)
+  async updateSession(
+    id: string,
+    updateSessionDto: UpdateSessionDto,
+  ): Promise<SessionResponseDto> {
+    const { title, startTime, endTime, eventId } = updateSessionDto;
 
-        try {
-            const session = await this.prisma.session.update({
-                where: { id },
-                data: {
-                    title,
-                    startTime,
-                    endTime,
-                    eventId
-                },
-                select: {
-                    id: true,
-                    title: true,
-                    startTime: true,
-                    endTime: true,
-                    eventId: true,
-                    createdAt: true,
-                    updatedAt: true
-                }
-            });
+    try {
+      const session = await this.prisma.session.update({
+        where: { id },
+        data: {
+          title,
+          startTime,
+          endTime,
+          eventId,
+        },
+        select: {
+          id: true,
+          title: true,
+          startTime: true,
+          endTime: true,
+          eventId: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
 
-            return session;
-
-        } catch (error) {
-            console.error('Error updating session:', error);
-            throw new InternalServerErrorException('Failed to update session');
-        }
+      return session;
+    } catch (error) {
+      console.error('Error updating session:', error);
+      throw new InternalServerErrorException('Failed to update session');
     }
+  }
 
-    // delete session (only admin)
-    async deleteSession(id: string): Promise<{ message: string }> {
-        try {
+  // delete session (only admin)
+  async deleteSession(id: string): Promise<{ message: string }> {
+    try {
+      const existingSession = await this.prisma.session.findUnique({
+        where: { id },
+      });
 
-            const existingSession = await this.prisma.session.findUnique({
-                where: { id }
-            });
+      if (!existingSession)
+        throw new InternalServerErrorException('Session not found');
 
-            if (!existingSession)
-                throw new InternalServerErrorException('Session not found');
+      await this.prisma.session.delete({
+        where: { id },
+      });
 
-            await this.prisma.session.delete({
-                where: { id }
-            });
-
-            return { message: 'Session deleted successfully' };
-        } catch (error) {
-            console.error('Error deleting session:', error);
-            throw new InternalServerErrorException('Failed to delete session');
-        }
+      return { message: 'Session deleted successfully' };
+    } catch (error) {
+      console.error('Error deleting session:', error);
+      throw new InternalServerErrorException('Failed to delete session');
     }
+  }
 
+  // delete all sessions for an event (only admin)
+  async deleteSessionsByEventId(eventId: string): Promise<{ message: string }> {
+    try {
+      const existingSessions = await this.prisma.session.findMany({
+        where: { eventId },
+      });
 
-    // delete all sessions for an event (only admin)
-    async deleteSessionsByEventId(eventId: string): Promise<{ message: string }> {
-        try {
+      if (!existingSessions)
+        throw new InternalServerErrorException('Event not found');
 
-            const existingSessions = await this.prisma.session.findMany({
-                where: { eventId }
-            });
+      if (existingSessions.length === 0)
+        throw new InternalServerErrorException(
+          'No sessions found for the event',
+        );
 
-            if (!existingSessions)
-                throw new InternalServerErrorException('Event not found');
+      await this.prisma.session.deleteMany({
+        where: { eventId },
+      });
 
-            if (existingSessions.length === 0)
-                throw new InternalServerErrorException('No sessions found for the event');
-
-            await this.prisma.session.deleteMany({
-                where: { eventId }
-            });
-
-            return { message: 'All sessions for the event deleted successfully' };
-        } catch (error) {
-            console.error('Error deleting sessions for event:', error);
-            throw new InternalServerErrorException('Failed to delete sessions for event');
-        }
+      return { message: 'All sessions for the event deleted successfully' };
+    } catch (error) {
+      console.error('Error deleting sessions for event:', error);
+      throw new InternalServerErrorException(
+        'Failed to delete sessions for event',
+      );
     }
-
+  }
 }

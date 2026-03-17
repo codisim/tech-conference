@@ -7,162 +7,159 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
-    constructor(
-        private prisma: PrismaService,
-        // private readonly SOLT_ROUNDS: number = 10
-    ) { }
+  constructor(
+    private prisma: PrismaService,
+    // private readonly SOLT_ROUNDS: number = 10
+  ) {}
 
-    async getProfile(userId: string): Promise<UserResponseDto> {
-        const user = await this.prisma.user.findUnique({
-            where: { id: userId },
-            select: {
-                id: true,
-                email: true,
-                firstName: true,
-                lastName: true,
-                role: true,
-                createdAt: true,
-                updatedAt: true,
-                password: false
-            }
-        })
+  async getProfile(userId: string): Promise<UserResponseDto> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+        password: false,
+      },
+    });
 
-        if (!user)
-            throw new NotFoundException('User not found');
+    if (!user) throw new NotFoundException('User not found');
 
-        return user
-    }
+    return user;
+  }
 
+  // get all users (admin only)
+  async getAllUsers(): Promise<UserResponseDto[]> {
+    const users = await this.prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+        password: false,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
 
-    // get all users (admin only)
-    async getAllUsers(): Promise<UserResponseDto[]> {
-        const users = await this.prisma.user.findMany({
-            select: {
-                id: true,
-                email: true,
-                firstName: true,
-                lastName: true,
-                role: true,
-                createdAt: true,
-                updatedAt: true,
-                password: false
-            },
-            orderBy: {
-                createdAt: 'desc'
-            }
-        })
+    return users;
+  }
 
-        return users;
-    }
+  // get user by id (admin only)
+  async getUserById(id: string): Promise<UserResponseDto> {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+        password: false,
+      },
+    });
 
-    // get user by id (admin only)
-    async getUserById(id: string): Promise<UserResponseDto> {
-        const user = await this.prisma.user.findUnique({
-            where: { id },
-            select: {
-                id: true,
-                email: true,
-                firstName: true,
-                lastName: true,
-                role: true,
-                createdAt: true,
-                updatedAt: true,
-                password: false
-            }
-        })
+    if (!user) throw new NotFoundException('User not found');
 
-        if (!user)
-            throw new NotFoundException('User not found');
+    return user;
+  }
 
-        return user
-    }
+  // update user profile (current user)
+  async updateProfile(
+    userId: string,
+    updateUserDto: UpdateUserDto,
+  ): Promise<UserResponseDto> {
+    const user = await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        email: updateUserDto.email,
+        firstName: updateUserDto.firstName,
+        lastName: updateUserDto.lastName,
+      },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+        password: false,
+      },
+    });
 
-    // update user profile (current user)
-    async updateProfile(userId: string, updateUserDto: UpdateUserDto): Promise<UserResponseDto> {
-        const user = await this.prisma.user.update({
-            where: { id: userId },
-            data: {
-                email: updateUserDto.email,
-                firstName: updateUserDto.firstName,
-                lastName: updateUserDto.lastName
-            },
-            select: {
-                id: true,
-                email: true,
-                firstName: true,
-                lastName: true,
-                role: true,
-                createdAt: true,
-                updatedAt: true,
-                password: false
-            }
-        })
+    return user;
+  }
 
-        return user;
-    }
+  // change password (current user)
+  async changePassword(
+    userId: string,
+    changePasswordDto: ChangePasswordDto,
+  ): Promise<{ message: string }> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
 
+    if (!user) throw new NotFoundException('User not found');
 
-    // change password (current user)
-    async changePassword(userId: string, changePasswordDto: ChangePasswordDto): Promise<{ message: string }> {
-        const user = await this.prisma.user.findUnique({
-            where: { id: userId }
-        })
+    // check if current password is correct
+    if (user.password !== changePasswordDto.currentPassword)
+      throw new NotFoundException('Current password is incorrect');
 
-        if (!user)
-            throw new NotFoundException('User not found');
+    const isSamed = user.password === changePasswordDto.newPassword;
+    if (isSamed)
+      throw new NotFoundException(
+        'New password cannot be the same as current password',
+      );
 
-        // check if current password is correct
-        if (user.password !== changePasswordDto.currentPassword)
-            throw new NotFoundException('Current password is incorrect');
+    const hashedPassword = await bcrypt.hash(changePasswordDto.newPassword, 10);
 
-        const isSamed = user.password === changePasswordDto.newPassword;
-        if (isSamed)
-            throw new NotFoundException('New password cannot be the same as current password');
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        password: hashedPassword,
+      },
+    });
+    return { message: 'Password changed successfully' };
+  }
 
-        const hashedPassword = await bcrypt.hash(changePasswordDto.newPassword, 10);
+  // delete current user
+  async deleteUser(userId: string): Promise<{ message: string }> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
 
-        await this.prisma.user.update({
-            where: { id: userId },
-            data: {
-                password: hashedPassword
-            }
-        })
-        return { message: 'Password changed successfully' };
-    }
+    if (!user) throw new NotFoundException('User not found');
 
+    await this.prisma.user.delete({
+      where: { id: userId },
+    });
 
-    // delete current user  
-    async deleteUser(userId: string): Promise<{ message: string }> {
+    return { message: 'User deleted successfully' };
+  }
 
-        const user = await this.prisma.user.findUnique({
-            where: { id: userId }
-        })
+  // delete user by id (admin only)
+  async deleteUserById(id: string): Promise<{ message: string }> {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+    });
 
-        if (!user)
-            throw new NotFoundException('User not found');
+    if (!user) throw new NotFoundException('User not found');
 
-        await this.prisma.user.delete({
-            where: { id: userId }
-        })
+    await this.prisma.user.delete({
+      where: { id },
+    });
 
-        return { message: 'User deleted successfully' };
-    }
-
-
-    // delete user by id (admin only)
-    async deleteUserById(id: string): Promise<{ message: string }> {
-        const user = await this.prisma.user.findUnique({
-            where: { id }
-        })
-
-        if (!user)
-            throw new NotFoundException('User not found');
-
-        await this.prisma.user.delete({
-            where: { id }
-        })
-
-        return { message: 'User deleted successfully' };
-    }
-
+    return { message: 'User deleted successfully' };
+  }
 }

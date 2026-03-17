@@ -12,12 +12,16 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET') ?? 'defaultSecretNestCommerce',
-        signOptions: { expiresIn: Number(configService.get<number>('JWT_EXPIRES_IN', 900)) }
-      })
-    })
+        secret:
+          configService.get<string>('JWT_SECRET') ??
+          'defaultSecretNestCommerce',
+        signOptions: {
+          expiresIn: Number(configService.get<number>('JWT_EXPIRES_IN', 900)),
+        },
+      }),
+    }),
   ],
   providers: [AuthService, JwtStrategy],
-  controllers: [AuthController]
+  controllers: [AuthController],
 })
-export class AuthModule { }
+export class AuthModule {}
