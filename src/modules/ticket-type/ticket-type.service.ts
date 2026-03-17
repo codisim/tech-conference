@@ -45,4 +45,17 @@ export class TicketTypeService {
             price: Number(t.price)
         }));
     }
+
+    // get event by in
+    async getByEvent(eventId: string): Promise<TicketTypeResponseDto[]> {
+
+        const data = await this.prisma.ticketType.findMany({
+            where: { eventId }
+        });
+
+        return data.map(t => ({
+            ...t,
+            price: Number(t.price)
+        }));
+    }
 }
