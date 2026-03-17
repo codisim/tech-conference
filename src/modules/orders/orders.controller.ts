@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { OrderResponseDto } from './dto/response-order.dto';
@@ -10,7 +10,7 @@ import { CreateOrderDto } from './dto/create-order.dto';
 export class OrdersController {
     constructor(private readonly ordersService: OrdersService) { }
 
-
+    // create
     @Post()
     @HttpCode(HttpStatus.CREATED)
     @ApiOperation({ summary: 'Create Order' })
@@ -29,8 +29,30 @@ export class OrdersController {
         description: 'Internal server error',
     })
 
-    create(@Body() createOrderDto: CreateOrderDto) {
+    create(@Body() createOrderDto: CreateOrderDto): Promise<OrderResponseDto> {
         return this.ordersService.create(createOrderDto);
+    }
+
+
+    // get all
+    @Get()
+    @ApiOperation({ summary: 'Get all orders' })
+    @ApiResponse({
+        status: 200,
+        type: [OrderResponseDto],
+    })
+
+    @ApiResponse({
+        status: 400,
+        description: 'Bad request',
+    })
+    @ApiResponse({
+        status: 500,
+        description: 'Internal server error',
+    })
+
+    findAll(): Promise<OrderResponseDto[]> {
+        return this.ordersService.findAll();
     }
 
 
