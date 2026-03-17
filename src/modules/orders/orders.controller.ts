@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { OrderResponseDto } from './dto/response-order.dto';
@@ -7,6 +7,7 @@ import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { RoleGuard } from 'src/common/guards/roles.guard';
 import { UserRole } from '@prisma/client';
 import { Roles } from 'src/common/decorators/role.decorators';
+import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 
 
 @ApiTags('Orders')
@@ -123,10 +124,45 @@ export class OrdersController {
     })
 
 
+    @Patch(':id/status')
     updateStatus(
         @Param('id') id: string,
-        @Body('status') status: string,
+        @Body() dto: UpdateOrderStatusDto,
     ) {
-        return this.ordersService.updateStatus(id, status);
+        return this.ordersService.updateStatus(id, dto.status);
+    }
+
+
+    // delete
+    @Delete(':id')
+    @ApiOperation({ summary: 'Delete order' })
+    @ApiResponse({
+        status: 200,
+        description: 'Order deleted successfully',
+    })
+
+    @ApiResponse({
+        status: 400,
+        description: 'Bad request',
+    })
+
+    @ApiResponse({
+        status: 404,
+        description: 'Order not found',
+    })
+
+    @ApiResponse({
+        status: 401,
+        description: 'Unauthorized',
+    })
+
+    @ApiResponse({
+        status: 500,
+        description: 'Internal server error',
+    })
+
+
+    remove(@Param('id') id: string): Promise<{ message: string }> {
+        return this.ordersService.remove(id);
     }
 }
