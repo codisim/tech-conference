@@ -1,8 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateTicketTypeDto } from './dto/create-ticket-type.dto';
 import { TicketTypeResponseDto } from './dto/response-ticket-type.dto';
 import { Prisma } from '@prisma/client';
+import { UpdateTicketTypeResponseDto } from './dto/update-ticket-type.dto';
 
 @Injectable()
 export class TicketTypeService {
@@ -73,6 +74,38 @@ export class TicketTypeService {
         return {
             ...ticketType,
             price: Number(ticketType.price)
+        };
+    }
+
+    // update
+    async update(
+        id: string,
+        dto: UpdateTicketTypeResponseDto
+    ): Promise<TicketTypeResponseDto> {
+
+        const existing = await this.prisma.ticketType.findUnique({
+            where: { id }
+        });
+
+        if (!existing)
+            throw new NotFoundException("Ticket type not found");
+
+        if (dto.quantity && dto.quantity < existing.soldQuantity) {
+            throw new BadRequestException("Quantity cannot be less than sold tickets");
+        }
+
+        const updated = await this.prisma.ticketType.update({
+            where: { id },
+            data: {
+                name: dto.name,
+                price: dto.price ? new Prisma.Decimal(dto.price) : undefined,
+                quantity: dto.quantity
+            }
+        });
+
+        return {
+            ...updated,
+            price: Number(updated.price)
         };
     }
 }
