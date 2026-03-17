@@ -111,4 +111,26 @@ export class TicketService {
         });
     }
 
+    // delete
+    async deleteTicket(id: string, userId: string): Promise<{ message: string }> {
+
+        const ticket = await this.prisma.ticket.findUnique({
+            where: { id }
+        });
+
+        if (!ticket)
+            throw new NotFoundException("Ticket not found");
+
+        if (ticket.userId !== userId)
+            throw new ForbiddenException("You cannot delete this ticket");
+
+        await this.prisma.ticket.delete({
+            where: { id }
+        });
+
+        return {
+            message: "Ticket deleted successfully"
+        }
+    }
+
 }

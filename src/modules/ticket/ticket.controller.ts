@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { TicketService } from './ticket.service';
 import { CreateTicketDto } from './dto/create-ticket.dto';
@@ -87,12 +87,34 @@ export class TicketController {
     @Patch(':id')
     @ApiOperation({ summary: 'Update ticket (status or qrCode)' })
     @ApiResponse({ status: 200, type: TicketResponseDto })
+
+    @ApiResponse({
+        status: 401,
+        description: 'Unauthorized'
+    })
+
+    @ApiResponse({
+        status: 500,
+        description: 'Internal server error.'
+    })
+
     async updateTicket(
         @Param('id') id: string,
         @Body() dto: UpdateTicketDto,
         @Req() req
     ): Promise<TicketResponseDto> {
         return this.ticketService.updateTicket(id, dto, req.user.id);
+    }
+
+    // delete
+    @Delete(':id')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiOperation({ summary: 'Delete ticket' })
+    async deleteTicket(
+        @Param('id') id: string,
+        @Req() req
+    ): Promise<{message: string}> {
+        return this.ticketService.deleteTicket(id, req.user.id);
     }
 
 }
