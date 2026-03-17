@@ -2,6 +2,7 @@ import { BadRequestException, ForbiddenException, Injectable, NotFoundException 
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { TicketResponseDto } from './dto/ticket-response.dto';
+import { UpdateTicketDto } from './dto/update-ticker.dto';
 
 @Injectable()
 export class TicketService {
@@ -82,6 +83,32 @@ export class TicketService {
             throw new ForbiddenException("You are not allowed to access this ticket");
 
         return ticket;
+    }
+
+    // update
+    async updateTicket(
+        id: string,
+        dto: UpdateTicketDto,
+        userId: string
+    ): Promise<TicketResponseDto> {
+
+        const ticket = await this.prisma.ticket.findUnique({
+            where: { id }
+        });
+
+        if (!ticket)
+            throw new NotFoundException("Ticket not found");
+
+        if (ticket.userId !== userId)
+            throw new ForbiddenException("You cannot update this ticket");
+
+        return this.prisma.ticket.update({
+            where: { id },
+            data: {
+                qrCode: dto.qrCode,
+                status: dto.status
+            }
+        });
     }
 
 }

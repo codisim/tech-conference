@@ -1,9 +1,10 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { TicketService } from './ticket.service';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { TicketResponseDto } from './dto/ticket-response.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { UpdateTicketDto } from './dto/update-ticker.dto';
 
 
 @ApiTags('Ticket')
@@ -65,7 +66,7 @@ export class TicketController {
     @Get(':id')
     @ApiOperation({ summary: 'Get single ticket by ID' })
     @ApiResponse({ status: 200, type: TicketResponseDto })
-     @ApiResponse({
+    @ApiResponse({
         status: 401,
         description: 'Unauthorized'
     })
@@ -74,12 +75,24 @@ export class TicketController {
         status: 500,
         description: 'Internal server error.'
     })
-    
+
     async getTicketById(
         @Param('id') id: string,
         @Req() req
     ): Promise<TicketResponseDto> {
         return this.ticketService.getTicketById(id, req.user.id);
+    }
+
+    // update
+    @Patch(':id')
+    @ApiOperation({ summary: 'Update ticket (status or qrCode)' })
+    @ApiResponse({ status: 200, type: TicketResponseDto })
+    async updateTicket(
+        @Param('id') id: string,
+        @Body() dto: UpdateTicketDto,
+        @Req() req
+    ): Promise<TicketResponseDto> {
+        return this.ticketService.updateTicket(id, dto, req.user.id);
     }
 
 }
