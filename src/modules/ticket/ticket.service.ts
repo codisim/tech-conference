@@ -10,8 +10,8 @@ export class TicketService {
     ) { }
 
     // create new ticket
-    async createTicket(createTicketDto: CreateTicketDto): Promise<TicketResponseDto> {
-        const { userId, eventId, ticketTypeId, orderId, qrCode, status } = createTicketDto;
+    async createTicket(createTicketDto: CreateTicketDto, userId: string): Promise<TicketResponseDto> {
+        const { eventId, ticketTypeId, orderId, qrCode, status } = createTicketDto;
 
 
         const ticketType = await this.prisma.ticketType.findUnique({
