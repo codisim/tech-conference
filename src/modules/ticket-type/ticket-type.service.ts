@@ -58,4 +58,21 @@ export class TicketTypeService {
             price: Number(t.price)
         }));
     }
+
+    // get single
+    async getOne(id: string): Promise<TicketTypeResponseDto> {
+
+        const ticketType = await this.prisma.ticketType.findUnique({
+            where: { id }
+        });
+
+        if (!ticketType) {
+            throw new NotFoundException("Ticket type not found");
+        }
+
+        return {
+            ...ticketType,
+            price: Number(ticketType.price)
+        };
+    }
 }
