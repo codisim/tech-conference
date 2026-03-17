@@ -60,5 +60,13 @@ export class TicketService {
 
     }
 
+    // get all
+    async getAllTickets(userId: string): Promise<TicketResponseDto[]> {
+        return this.prisma.ticket.findMany({
+            where: { userId },
+            orderBy: { createdAt: 'desc' }
+        });
+    }
+
 
 }
