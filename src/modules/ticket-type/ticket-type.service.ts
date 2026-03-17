@@ -108,4 +108,20 @@ export class TicketTypeService {
             price: Number(updated.price)
         };
     }
+
+    // delete
+    async delete(id: string): Promise<void> {
+
+        const existing = await this.prisma.ticketType.findUnique({
+            where: { id }
+        });
+
+        if (!existing) {
+            throw new NotFoundException("Ticket type not found");
+        }
+
+        await this.prisma.ticketType.delete({
+            where: { id }
+        });
+    }
 }
