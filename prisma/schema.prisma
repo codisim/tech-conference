@@ -4,6 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -113,7 +114,7 @@ model Speaker {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  sessions SessionSpeaker[] 
+  sessions SessionSpeaker[]
 
   @@map("speakers")
 }
@@ -131,7 +132,7 @@ model SessionSpeaker {
   @@map("session_speakers")
 }
 
-model TicketType {  
+model TicketType {
   id           String   @id @default(uuid())
   name         String
   price        Decimal  @db.Decimal(10, 2)
@@ -216,7 +217,6 @@ model Sponsor {
 
   @@map("sponsors")
 }
-
 
 model Review {
   id      String  @id @default(uuid())
