@@ -167,6 +167,33 @@ export class PaymentsService {
     }
 
 
+    // get single payment
+    async getSinglePayment(id: string, userId: string): Promise<{
+        success: boolean;
+        data: PaymentResponseDto;
+        message: string;
+    }> {
+
+        const payment = await this.prisma.payment.findFirst({
+
+            where: {
+                id,
+                userId
+            }
+        });
+
+        if (!payment)
+            throw new NotFoundException('Payment not found')
+
+        return {
+            success: true,
+            data: this.mapToPaymentResponse(payment),
+            message: 'Payment found successfully'
+        }
+
+    }
+
+
     private mapToPaymentResponse(payment: any): PaymentResponseDto {
         return {
             id: payment.id,

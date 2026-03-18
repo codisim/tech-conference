@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
-import { ApiBadRequestResponse, ApiBearerAuth, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { ApiBadRequestResponse, ApiBearerAuth, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { PaymentsService } from './payments.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
@@ -78,5 +78,34 @@ export class PaymentsController {
     async getAllPayment(@GetUser('id') userId: string) {
         return await this.paymentsService.getAllPayment(userId)
     }
+
+
+    // get single payment
+    @Get(':id')
+    @ApiParam({
+        name: 'id',
+        description: 'payment id',
+        required: true,
+        example: 'bc2d0f53-5041-46e8-a14c-267875a49f0c'
+    })
+
+    @ApiOperation({
+        summary: 'get single payment',
+        description: 'get single payment for an user'
+    })
+
+    @ApiOkResponse({
+        description: 'payment found successfully',
+        type: PaymentResponseApiDto
+    })
+
+    @ApiNotFoundResponse({
+        description: 'payment not found'
+    })
+
+    async getSinglePayment(@Param('id') id: string, @GetUser('id') userId: string) {
+        return await this.paymentsService.getSinglePayment(id, userId)
+    }
+
 
 }
