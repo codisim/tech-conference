@@ -1,5 +1,5 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
-import { ApiBadRequestResponse, ApiBearerAuth, ApiCreatedResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { ApiBadRequestResponse, ApiBearerAuth, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { PaymentsService } from './payments.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
@@ -52,12 +52,31 @@ export class PaymentsController {
     })
 
     @ApiBadRequestResponse({
-        description: 'Payment not found or already confirmed', 
+        description: 'Payment not found or already confirmed',
     })
 
 
-    async confirmpayment(@Body() confirmPaymentDto: ConfirmPaymentDto, @GetUser('id') userId: string){
+    async confirmpayment(@Body() confirmPaymentDto: ConfirmPaymentDto, @GetUser('id') userId: string) {
         return await this.paymentsService.confirmPayment(confirmPaymentDto, userId)
-    }   
+    }
+
+
+
+    // get all payment
+    @Get()
+    @ApiOperation({
+        summary: 'get all payment',
+        description: 'get all payment for an user'
+    })
+
+    @ApiOkResponse({
+        description: 'payment found successfully',
+        type: PaymentResponseApiDto,
+        isArray: true
+    })
+
+    async getAllPayment(@GetUser('id') userId: string) {
+        return await this.paymentsService.getAllPayment(userId)
+    }
 
 }
