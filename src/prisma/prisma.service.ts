@@ -5,20 +5,29 @@ import { PrismaClient } from '@prisma/client';
 @Injectable()
 export class PrismaService
   extends PrismaClient
-  implements OnModuleInit, OnModuleDestroy
-{
-  constructor() {
-    const adapter = new PrismaPg({
-      connectionString: process.env.DATABASE_URL,
-    });
+  implements OnModuleInit, OnModuleDestroy {
+  // constructor() {
+  //   const adapter = new PrismaPg({
+  //     connectionString: process.env.DATABASE_URL,
+  //   });
 
+  //   super({
+  //     adapter,
+  //     log:
+  //       process.env.NODE_ENV === 'development'
+  //         ? ['query', 'error', 'warn']
+  //         : ['error'],
+  //   });
+
+
+  constructor() {
     super({
-      adapter,
       log:
         process.env.NODE_ENV === 'development'
           ? ['query', 'error', 'warn']
           : ['error'],
     });
+
   }
 
   async onModuleInit() {
